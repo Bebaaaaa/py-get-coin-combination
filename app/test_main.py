@@ -1,30 +1,37 @@
-import pytest
+from typing import Any
 from app.main import get_coin_combination
-
-def test_return_only_pennies():
-    result = get_coin_combination(3)
-    assert result == [3, 0, 0, 0]
-    result2 = get_coin_combination(41)
-    assert sum(1 for c in result2 if c > 0) > 1
+import pytest
 
 
 @pytest.mark.parametrize(
-    "cents, coin_index",
+    "cents,expected_result",
     [
-        (1, 0),   
-        (5, 1),   
-        (10, 2),  
-        (25, 3),  
-    ],
+        (1, [1, 0, 0, 0]),
+        (6, [1, 1, 0, 0]),
+        (16, [1, 1, 1, 0]),
+        (41, [1, 1, 1, 1]),
+        (17, [2, 1, 1, 0]),
+        (50, [0, 0, 0, 2]),
+        (1256, [1, 1, 0, 50])
+    ]
 )
-def test_return_only_one_type(cents, coin_index):
-    result = get_coin_combination(cents)
-    non_zero_types = sum(1 for c in result if c > 0)
-    assert non_zero_types == 1
-    assert result[coin_index] > 0
+def test_get_coin_combination_with_different_results(
+        cents: int,
+        expected_result: list
+) -> None:
+    assert get_coin_combination(cents) == expected_result
 
 
-def test_return_multiple_types():
-    result = get_coin_combination(41)
-    non_zero = sum(1 for c in result if c > 0)
-    assert non_zero > 1
+@pytest.mark.parametrize(
+    "value, expected_error",
+    [
+        ("abc", TypeError),
+        ([], TypeError)
+    ]
+)
+def test_get_coin_combination_unsuitable_value(
+        value: Any,
+        expected_error: BaseException
+) -> None:
+    with pytest.raises(TypeError):
+        assert get_coin_combination(value)
